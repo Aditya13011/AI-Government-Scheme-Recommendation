@@ -49,24 +49,19 @@ st.markdown("""
 @st.cache_resource
 # @st.cache_resource: loads model only ONCE, not on every user click
 # This makes the app much faster
+@st.cache_resource
 def load_artifacts():
-    file_dir = os.path.dirname(os.path.abspath(__file__))
-    # Try to locate the repository root that contains the 'models' folder.
-    # If this file is in an 'app/' subfolder, the parent directory will be the repo root.
-    if os.path.exists(os.path.join(file_dir, 'models')):
-        base = file_dir
-    elif os.path.exists(os.path.join(os.path.dirname(file_dir), 'models')):
-        base = os.path.dirname(file_dir)
-    else:
-        # Fallback: use the file's directory (keeps behavior stable when running from repo root)
-        base = file_dir
+    # Get the directory where streamlit_app.py is located
+    base = os.path.dirname(os.path.abspath(__file__))
+    # Since streamlit_app.py is in ROOT folder,
+    # models/ is directly next to it — no need to go up!
 
-    model_path    = os.path.join(base, 'models', 'tuned_random_forest.pkl')
-    encoder_path  = os.path.join(base, 'models', 'encoders.pkl')
-    scaler_path   = os.path.join(base, 'models', 'scaler.pkl')
-    labels_path   = os.path.join(base, 'models', 'label_cols.pkl')
+    model_path   = os.path.join(base, 'models', 'tuned_random_forest.pkl')
+    encoder_path = os.path.join(base, 'models', 'encoders.pkl')
+    scaler_path  = os.path.join(base, 'models', 'scaler.pkl')
+    labels_path  = os.path.join(base, 'models', 'label_cols.pkl')
 
-    # Fallback to untuned model if tuned doesn't exist
+    # Fallback to best_model if tuned doesn't exist
     if not os.path.exists(model_path):
         model_path = os.path.join(base, 'models', 'best_model.pkl')
 
@@ -74,7 +69,6 @@ def load_artifacts():
     with open(encoder_path, 'rb') as f: encoders = pickle.load(f)
     with open(scaler_path,  'rb') as f: scaler   = pickle.load(f)
     with open(labels_path,  'rb') as f: labels   = pickle.load(f)
-    # 'rb' = read binary mode
 
     return model, encoders, scaler, labels
 
